@@ -30,8 +30,16 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
     loadTodaysTasks();
   }, []);
 
+  // Update parent state safely inside useEffect when tasks change
+  useEffect(() => {
+    if (onProgressUpdate && !loading) {
+      const completed = Object.values(tasks).filter(v => v === true).length;
+      const percentage = Math.round((completed / 5) * 100);
+      onProgressUpdate(percentage);
+    }
+  }, [tasks, loading, onProgressUpdate]);
+
   const loadTodaysTasks = () => {
-    // Tasks now maintain local React state instead of reading from Firestore
     setTasks({
       water: null,
       meals: null,
@@ -47,15 +55,10 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
     setTasks(updatedTasks);
   };
 
+  // Pure function for render — no side effects or callback calls
   const getCompletionPercentage = () => {
     const completed = Object.values(tasks).filter(v => v === true).length;
-    const percentage = Math.round((completed / 5) * 100);
-
-    if (onProgressUpdate) {
-      onProgressUpdate(percentage);
-    }
-    
-    return percentage;
+    return Math.round((completed / 5) * 100);
   };
 
   const renderTaskItem = (taskKey) => {
