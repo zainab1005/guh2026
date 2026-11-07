@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Pressable,
+  Linking,
 } from "react-native";
 import BottomConsole from "./BottomConsole";
 
@@ -78,6 +79,30 @@ const SAMPLE_INSIGHTS = [
     detail: "You are spending £14 less on subscriptions than last month.",
   },
 ];
+
+const NW = {
+  reduceSpending: "https://personal.natwest.com/life-moments/managing-your-money/reduce-spending.html",
+  budget: "https://www.natwest.com/life-moments/managing-your-money/budget-calculator.html",
+  bills: "https://www.natwest.com/support-centre/payments/general/im-struggling-with-my-bills-how-can-you-help.html",
+  savings: "https://natwest.com/savings/tools-for-savings/round-ups.html",
+  struggling: "https://www.natwest.com/life-moments/Struggling-financially.html",
+  costOfLiving: "https://www.natwest.com/life-moments/managing-your-money/cost-of-living.html",
+  wellbeing: "https://natwest.com/life-moments/managing-your-money/cost-of-living/looking-after-yourself.html",
+};
+
+// Picks a NatWest page that helps with a forecast point. An insight can bring its
+// own { url, linkLabel }; otherwise we match on keywords in its text.
+function helpLinkFor(insight) {
+  if (insight.url) return { url: insight.url, label: insight.linkLabel || "Get help from NatWest" };
+  const t = `${insight.title} ${insight.detail}`.toLowerCase();
+  if (/saving|subscription|buffer|round/.test(t)) return { url: NW.savings, label: "Grow your savings with NatWest" };
+  if (/takeaway|spend|food|shopping|travel/.test(t)) return { url: NW.reduceSpending, label: "Tips to reduce spending" };
+  if (/income|earn|pay\b|wage/.test(t)) return { url: NW.budget, label: "Try the NatWest budget calculator" };
+  if (/late|invoice|overdue|bill|overdraft|debt/.test(t)) return { url: NW.bills, label: "Help with bills and late payments" };
+  return { url: NW.costOfLiving, label: "NatWest money support" };
+}
+
+const openLink = (url) => Linking.openURL(url).catch(() => {});
 
 const RANGES = [
   { key: "14", label: "2 weeks", days: 14 },
@@ -160,6 +185,7 @@ function ForecastChart({ points, buffer, selectedIndex, onSelect }) {
 
 function InsightCard({ insight }) {
   const accent = INSIGHT_ACCENT[insight.type] || COLORS.info;
+  const link = helpLinkFor(insight);
   return (
     <View style={styles.insightCard}>
       <View style={[styles.insightMark, { borderColor: accent }]}>
@@ -170,6 +196,9 @@ function InsightCard({ insight }) {
       <View style={styles.insightBody}>
         <Text style={styles.insightTitle}>{insight.title}</Text>
         <Text style={styles.insightDetail}>{insight.detail}</Text>
+        <TouchableOpacity onPress={() => openLink(link.url)} style={styles.linkBtn}>
+          <Text style={styles.linkText}>{link.label} ↗</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -203,6 +232,11 @@ export default function ForecastPage({
   const shown = points[shownIndex];
 
   const insightList = insights && insights.length ? insights : SAMPLE_INSIGHTS;
+
+  const tight = useMemo(
+    () => points.some((p) => !p.actual && p.low < buffer),
+    [points, buffer]
+  );
 
   const headline = useMemo(() => {
     const risk = points.find((p) => !p.actual && p.low < buffer);
@@ -248,6 +282,11 @@ export default function ForecastPage({
           </View>
 
           <Text style={styles.headline}>{headline}</Text>
+          {tight && (
+            <TouchableOpacity onPress={() => openLink(NW.struggling)} style={styles.linkBtn}>
+              <Text style={styles.linkText}>Planning for a tight patch? NatWest can help ↗</Text>
+            </TouchableOpacity>
+          )}
 
           <View style={styles.readout}>
             <Text style={styles.readoutDate}>{shown.label}</Text>
@@ -286,6 +325,22 @@ export default function ForecastPage({
         {insightList.map((insight) => (
           <InsightCard key={insight.id} insight={insight} />
         ))}
+
+        <View style={styles.supportBox}>
+          <Text style={styles.supportTitle}>💜 Need someone to talk to?</Text>
+          <Text style={styles.supportText}>
+            Money worries can weigh on your mind. You are not alone, and support is free.
+          </Text>
+          <TouchableOpacity style={styles.supportBtn} onPress={() => openLink(NW.wellbeing)}>
+            <Text style={styles.supportBtnText}>NatWest: looking after your wellbeing ↗</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.supportBtnAlt} onPress={() => openLink("tel:116123")}>
+            <Text style={styles.supportBtnAltText}>Call Samaritans free, 24/7: 116 123</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => openLink("https://www.mind.org.uk/need-urgent-help/")}>
+            <Text style={styles.supportLink}>Mind: mental health support ↗</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <BottomConsole
@@ -508,6 +563,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
+  linkBtn: { alignSelf: "flex-start", marginTop: 8 },
+  linkText: { color: COLORS.info, fontSize: 13, fontWeight: "700" },
+  supportBox: {
+    backgroundColor: COLORS.surfaceAlt,
+    borderRadius: 18,
+    padding: 18,
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  supportTitle: { color: COLORS.text, fontSize: 17, fontWeight: "700", marginBottom: 6 },
+  supportText: { color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 12 },
+  supportBtn: {
+    backgroundColor: COLORS.green,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  supportBtnText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
+  supportBtnAlt: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  supportBtnAltText: { color: COLORS.text, fontSize: 14, fontWeight: "700" },
+  supportLink: { color: COLORS.info, fontSize: 13, fontWeight: "700", marginTop: 12, textAlign: "center" },
   insightBody: {
     flex: 1,
   },
