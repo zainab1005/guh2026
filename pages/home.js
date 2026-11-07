@@ -5,12 +5,17 @@ import BottomConsole from './BottomConsole';
 export default function Home({ 
     currentUser, 
     onLogout, 
-    onNextPage, 
-    onNavigateToTasks, 
-    onNavigateToChatbot, 
-    onNavigateToShop,
+    onNavigateToHome,
+    onNavigateToForecast,
+    onNavigateToChat,
+    onNavigateToChatbot,
+    onNavigateToInsights,
+    onNavigateToTasks,
     planetHealth 
 }) {
+    // Fallbacks to handle whichever prop name is passed from App.js
+    const handleChat = onNavigateToChatbot || onNavigateToChat;
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
@@ -55,11 +60,13 @@ export default function Home({
                     </View>
                 </View>
 
-                {/* SEPARATE BOTTOM CONSOLE COMPONENT */}
+                {/* BOTTOM CONSOLE WITH NAV PROPS PASSED DOWN */}
                 <BottomConsole 
+                    onNavigateToHome={onNavigateToHome}
+                    onNavigateToForecast={onNavigateToForecast}
+                    onNavigateToChatbot={handleChat}
+                    onNavigateToInsights={onNavigateToInsights}
                     onNavigateToTasks={onNavigateToTasks}
-                    onNavigateToChatbot={onNavigateToChatbot}
-                    onNavigateToHome={() => {}}
                 />
             </View>
         </SafeAreaView>

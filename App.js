@@ -6,11 +6,14 @@ import Home from './pages/home';
 import PlanetPage from './pages/PlanetPage';
 import TasksScreen from './pages/TasksScreen';
 import ChatbotScreen from './pages/ChatbotScreen';
+import ForecastPage from './pages/ForecastPage';
+import Personalise from './pages/Personalise';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('login');
+  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home', 'forecast', 'insights', 'tasks', 'chatbot', 'planetpage'
   const [currentUser, setCurrentUser] = useState(null);
   const [planetHealth, setPlanetHealth] = useState(100);
+  const [userPriorities, setUserPriorities] = useState([]);
 
   const handleTaskProgress = (percentage) => {
     setPlanetHealth(percentage);
@@ -23,20 +26,24 @@ export default function App() {
 
   const navigateToTasks = () => setCurrentScreen('tasks');
   const navigateToChatbot = () => setCurrentScreen('chatbot');
-  const navigateToPlanet = () => setCurrentScreen('planetpage');
+  const navigateToForecast = () => setCurrentScreen('forecast');
+  const navigateToInsights = () => setCurrentScreen('insights');
   const navigateToSignUp = () => setCurrentScreen('signup');
   const navigateToLogin = () => setCurrentScreen('login');
+  
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentScreen('login');
   };
 
-  // Shared navigation handlers for the BottomConsole component across pages
+  // Shared navigation handlers for console toolbar across screens
   const consoleNavigation = {
     onNavigateToHome: () => setCurrentScreen('home'),
-    onNavigateToForecast: () => setCurrentScreen('planetpage'),
+    onNavigateToForecast: navigateToForecast,
+    onNavigateToChat: navigateToChatbot,
     onNavigateToChatbot: navigateToChatbot,
-    onNavigateToInsights: () => setCurrentScreen('planetpage'),
+    onNavigateToInsights: navigateToInsights,
+    onNavigateToActions: navigateToTasks,
     onNavigateToTasks: navigateToTasks,
   };
 
@@ -61,6 +68,20 @@ export default function App() {
           currentUser={currentUser}
           onLogout={handleLogout}
           planetHealth={planetHealth}          
+          {...consoleNavigation}
+        />
+      )}
+
+      {currentScreen === 'forecast' && (
+        <ForecastPage 
+          {...consoleNavigation}
+        />
+      )}
+
+      {currentScreen === 'insights' && (
+        <Personalise 
+          priorities={userPriorities}
+          onSave={(updatedPriorities) => setUserPriorities(updatedPriorities)}
           {...consoleNavigation}
         />
       )}

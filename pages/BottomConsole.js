@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 export default function BottomConsole({ 
-    onNavigateToTasks, 
+    onNavigateToHome,
+    onNavigateToForecast,
     onNavigateToChatbot, 
-    onNavigateToForecast, 
     onNavigateToInsights,
-    onNavigateToHome 
+    onNavigateToTasks
 }) {
     return (
         <View style={styles.bottomConsole}>
@@ -21,7 +21,7 @@ export default function BottomConsole({
             </TouchableOpacity>
 
             {/* CLAUDIA BUTTON WITH GOLD RING */}
-            <TouchableOpacity style={styles.claudiaNavButton} onPress={onNavigateToChatbot}>
+            <TouchableOpacity style={styles.claudiaNavButton} onPress={onNavigateToChatbot || (() => {})}>
                 <View style={styles.goldCircle}>
                     <Text style={styles.claudiaIcon}>💬</Text>
                 </View>
@@ -33,7 +33,7 @@ export default function BottomConsole({
                 <Text style={styles.navLabel}>Insights</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navButton} onPress={onNavigateToTasks}>
+            <TouchableOpacity style={styles.navButton} onPress={onNavigateToTasks || (() => {})}>
                 <Text style={styles.navIcon}>📋</Text>
                 <Text style={styles.navLabel}>Tasks</Text>
             </TouchableOpacity>
