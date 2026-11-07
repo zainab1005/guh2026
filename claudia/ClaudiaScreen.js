@@ -11,6 +11,7 @@ import {
   Platform,
   ActivityIndicator,
   SafeAreaView,
+  Image,
 } from "react-native";
 import BottomConsole from "../pages/BottomConsole";
 import { CLAUDIA_URL } from "./config";
@@ -271,6 +272,9 @@ export default function ClaudiaScreen({
         {/* Purple header, same look as the home page */}
         <View style={styles.headerCard}>
           <View style={styles.headerRow}>
+            <View style={styles.logoTile}>
+              <Image source={require("../resources/claudia_logo.png")} style={styles.logo} resizeMode="contain" />
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.welcomeLabel}>Your financial buddy</Text>
               <Text style={styles.title}>Claudia</Text>
@@ -375,6 +379,16 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  logoTile: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    backgroundColor: "#F9FAF4",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  logo: { width: 52, height: 52 },
   welcomeLabel: { color: C.lavender, fontSize: 15 },
   title: { color: "#FFFFFF", fontSize: 26, fontWeight: "bold", marginTop: 2 },
   speakerBtn: {
