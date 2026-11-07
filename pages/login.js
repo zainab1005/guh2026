@@ -6,50 +6,33 @@ import {
   TextInput, 
   TouchableOpacity,
   Alert,
-  ImageBackground // <-- Added ImageBackground
+  ImageBackground
 } from 'react-native';
-import { auth, db } from '../firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
 export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const userId = userCredential.user.uid;
-      
-      // Fetch user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        onLoginSuccess({ 
-          email: userCredential.user.email,
-          planetName: userData.planetName,
-          displayName: userData.displayName,
-          userId: userId
-        });
-      } else {
-        onLoginSuccess({ email: userCredential.user.email, userId: userId });
-      }
-      
-      Alert.alert('Success', 'Logged in!');
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    }
+    // Bypass database check and trigger successful login state
+    onLoginSuccess({ 
+      email: email,
+      planetName: 'My Planet',
+      displayName: email.split('@')[0],
+      userId: 'mock-user-id-123'
+    });
+    
+    Alert.alert('Success', 'Logged in!');
   };
 
   return (
     <ImageBackground
-      source={require('../resources/9.png')} // Replace with your actual image path if different
+      source={require('../resources/9.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -60,7 +43,7 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#6B7280" // Placeholder color from the second file
+          placeholderTextColor="#6B7280"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -70,7 +53,7 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#6B7280" // Placeholder color from the second file
+          placeholderTextColor="#6B7280"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -91,7 +74,6 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
 }
 
 const styles = StyleSheet.create({
-  // Styles from the second file
   background: {
     flex: 1,
     width: '100%',
@@ -99,8 +81,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    // Semi-transparent overlay for text readability over the image
-    backgroundColor: 'rgba(30, 27, 75, 0.7)', // Darker overlay
+    backgroundColor: 'rgba(30, 27, 75, 0.7)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -113,7 +94,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#fff', // White subtitle for contrast
+    color: '#fff',
     marginBottom: 32,
   },
   input: {
@@ -123,11 +104,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     fontSize: 16,
-    color: '#1E1B4B', // Ensure input text is dark
+    color: '#1E1B4B',
   },
   button: {
     width: '100%',
-    backgroundColor: '#52869eff', // Button color from the second file
+    backgroundColor: '#52869eff',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -139,7 +120,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   link: {
-    color: '#fff', // White link color for contrast
+    color: '#fff',
     marginTop: 20,
     fontSize: 14,
     textDecorationLine: 'underline',

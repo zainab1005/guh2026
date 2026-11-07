@@ -4,19 +4,17 @@ import {
   Text, 
   View, 
   TouchableOpacity,
-  Alert,
   ScrollView,
   ImageBackground
 } from 'react-native';
-import { db, auth } from '../firebaseConfig';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function TasksScreen({ onBack, onProgressUpdate }) {
   const [tasks, setTasks] = useState({
     water: null,
     meals: null,
     exercise: null,
-    sleep: null
+    sleep: null,
+    meditation: null
   });
   const [loading, setLoading] = useState(true);
 
@@ -32,71 +30,27 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
     loadTodaysTasks();
   }, []);
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  const loadTodaysTasks = () => {
+    // Tasks now maintain local React state instead of reading from Firestore
+    setTasks({
+      water: null,
+      meals: null,
+      exercise: null,
+      sleep: null,
+      meditation: null
+    });
+    setLoading(false);
   };
 
-  const loadTodaysTasks = async () => {
-    try {
-      // NOTE: Using a mock user ID if auth is unavailable in the environment
-      const userId = auth.currentUser?.uid || 'mock-tasks-user'; 
-      if (!userId) return;
-
-      const todayDate = getTodayDate();
-      // Using a simplified mock path for safety in this environment
-      const taskDocRef = doc(db, 'users', userId, 'dailyTasks', todayDate); 
-      const taskDoc = await getDoc(taskDocRef);
-
-      if (taskDoc.exists()) {
-        setTasks(taskDoc.data().tasks || {
-          water: null,
-          meals: null,
-          exercise: null,
-          sleep: null
-        });
-      }
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-      Alert.alert('Error', 'Failed to load today\'s tasks');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleTask = async (taskKey, newValue) => {
-    try {
-      const userId = auth.currentUser?.uid || 'mock-tasks-user';
-      if (!userId) return;
-
-      const updatedTasks = { ...tasks, [taskKey]: newValue };
-      setTasks(updatedTasks);
-
-      // Calculate completed count
-      const completedCount = Object.values(updatedTasks).filter(v => v === true).length;
-
-      // Save to Firebase
-      const todayDate = getTodayDate();
-      const taskDocRef = doc(db, 'users', userId, 'dailyTasks', todayDate);
-      
-      await setDoc(taskDocRef, {
-        date: todayDate,
-        tasks: updatedTasks,
-        completedCount: completedCount,
-        lastUpdated: new Date().toISOString()
-      }, { merge: true }); // Use merge to prevent overwriting other fields
-
-    } catch (error) {
-      console.error('Error updating task:', error);
-      Alert.alert('Error', 'Failed to update task');
-    }
+  const toggleTask = (taskKey, newValue) => {
+    const updatedTasks = { ...tasks, [taskKey]: newValue };
+    setTasks(updatedTasks);
   };
 
   const getCompletionPercentage = () => {
     const completed = Object.values(tasks).filter(v => v === true).length;
     const percentage = Math.round((completed / 5) * 100);
 
-    // Notify parent (App.js)
     if (onProgressUpdate) {
       onProgressUpdate(percentage);
     }
@@ -153,7 +107,7 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
 
   return (
     <ImageBackground
-      source={require('../resources/9.png')} // Background image source
+      source={require('../resources/9.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -192,15 +146,6 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
 }
 
 const styles = StyleSheet.create({
-  // --- COLOR PALETTE ---
-  // Deep Teal Blue: #1C3B5E (Base/Dark)
-  // Soft Blue/Grey: #396C8E (Card BG)
-  // Teal Blue Accent: #60B3B0 (Primary Button/Progress Fill)
-  // Mint Green: #8EE4AF (Accents/Progress Text)
-  // Pale Cyan: #E0F7FA (Light Text)
-  // Pastel Green: #77DD77 (Completed)
-  // Pastel Orange: #FFB347 (Incomplete)
-
   background: {
     flex: 1,
     width: '100%',
@@ -208,7 +153,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    backgroundColor: 'rgba(28, 59, 94, 0.9)', // Deep Teal Blue overlay
+    backgroundColor: 'rgba(28, 59, 94, 0.9)',
     paddingBottom: 40,
   },
   loadingOverlay: {
@@ -223,7 +168,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#E0F7FA', // Pale Cyan text
+    color: '#E0F7FA',
     marginBottom: 10,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
@@ -231,30 +176,30 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
-    color: '#A9D6E5', // Light Blue text
+    color: '#A9D6E5',
     marginBottom: 25,
   },
   progressContainer: {
     marginTop: 15,
-    backgroundColor: 'rgba(57, 108, 142, 0.5)', // Soft Blue/Grey transparent background
+    backgroundColor: 'rgba(57, 108, 142, 0.5)',
     padding: 15,
     borderRadius: 12,
   },
   progressText: {
     fontSize: 18,
-    color: '#8EE4AF', // Mint Green
+    color: '#8EE4AF',
     marginBottom: 10,
     fontWeight: '700',
   },
   progressBar: {
     height: 12,
-    backgroundColor: '#1C3B5E', // Deep Teal Blue track
+    backgroundColor: '#1C3B5E',
     borderRadius: 6,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#60B3B0', // Teal Blue fill
+    backgroundColor: '#60B3B0',
     borderRadius: 6,
   },
   tasksList: {
@@ -262,7 +207,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   taskItem: {
-    backgroundColor: '#396C8E', // Soft Blue/Grey card background
+    backgroundColor: '#396C8E',
     borderRadius: 16,
     padding: 20,
     marginBottom: 15,
@@ -277,7 +222,7 @@ const styles = StyleSheet.create({
   },
   taskLabel: {
     fontSize: 17,
-    color: '#E0F7FA', // Pale Cyan text
+    color: '#E0F7FA',
     flex: 1,
     fontWeight: '500',
   },
@@ -288,24 +233,24 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1C3B5E', // Deep Teal Blue button background
+    backgroundColor: '#1C3B5E',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#A9D6E5', // Light Blue border
+    borderColor: '#A9D6E5',
     marginLeft: 10,
   },
   completedButton: {
-    backgroundColor: '#77DD77', // Pastel Green
+    backgroundColor: '#77DD77',
     borderColor: '#4CAF50',
   },
   incompleteButton: {
-    backgroundColor: '#f6e248ff', // Pastel Orange
+    backgroundColor: '#f6e248ff',
     borderColor: '#f6e248ff',
   },
   statusIcon: {
     fontSize: 22,
-    color: '#A9D6E5', // Light Blue icon idle color
+    color: '#A9D6E5',
     fontWeight: 'bold',
   },
   statusIconActive: {
@@ -314,7 +259,7 @@ const styles = StyleSheet.create({
   backButton: {
     marginHorizontal: 30,
     marginTop: 20,
-    backgroundColor: '#60B3B0', // Teal Blue button
+    backgroundColor: '#60B3B0',
     padding: 18,
     borderRadius: 10,
     alignItems: 'center',

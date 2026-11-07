@@ -14,7 +14,6 @@ import {
   Alert
 } from 'react-native';
 
-// --- MOCK FIREBASE SETUP (REQUIRED FOR SINGLE-FILE DEMO) ---
 const MOCK_TASK_DATA = [
   { type: 'water', value: 2200, goal: 2500, status: 'near-goal' },
   { type: 'sleep', value: 7.2, goal: 8, status: 'partial' },
@@ -23,8 +22,6 @@ const MOCK_TASK_DATA = [
 const MOCK_PLANET_HEALTH = 88; 
 
 const getRecentTaskData = async () => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  // Ensure we return an array, even if the real fetch might sometimes return null/undefined
   return MOCK_TASK_DATA;
 };
 
@@ -32,16 +29,11 @@ const mockCurrentUser = {
   planetName: 'Aether',
   uid: 'mock-user-123',
 };
-// --- END MOCK SETUP ---
 
-
-// --- GEMINI API SETUP ---
-// Key is now securely loaded from EXPO_PUBLIC_GEMINI_API_KEY in the .env file
 const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY; 
 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`; 
 
 const calculateMetrics = (taskData) => {
-    // --- FIX APPLIED HERE: Robust guard against non-array/falsy taskData ---
     const data = Array.isArray(taskData) ? taskData : [];
     
     if (data.length === 0) {
@@ -52,19 +44,16 @@ const calculateMetrics = (taskData) => {
     const completedTasks = data.reduce((sum, day) => sum + (day.completedCount || 0), 0);
     const completionRate = Math.round((completedTasks / totalPossibleTasks) * 100);
     
-    // Using the secured data variable for slice
     const recentDaysSummary = data.slice(0, 3).map(day => {
         const datePart = (typeof day.date === 'string' && day.date.length > 5) ? day.date.slice(5) : 'Unknown Date';
         return `On ${datePart}, completed ${day.completedCount}/${day.totalCount} tasks.`;
     }).join(' ');
-    // --- END FIX ---
 
     const context = `User Context: Over the last ${data.length} days, the user has an average wellness task completion rate of ${completionRate}%. Summary of the last few days: ${recentDaysSummary}.`;
     
     return { context, rate: completionRate };
 };
 
-// --- INSIGHT MESSAGE TYPE DEFINITION ---
 const INSIGHT_COMMAND = "INSIGHT";
 const MESSAGE_TYPE_INSIGHT = "insight"; 
 
@@ -80,7 +69,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
   const [loading, setLoading] = useState(false);
   const scrollViewRef = useRef();
 
-  // Auto-scroll to bottom when messages update
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
@@ -89,7 +77,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
     scrollToBottom();
   }, [messages]);
   
-  // New function to handle the structured insight request
   const handleInsightRequest = useCallback(async (taskData) => {
       const { rate: completionRate } = calculateMetrics(taskData);
       
@@ -101,7 +88,7 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
 
       Your task:
       1. Write ONE motivational reflection (max 25 words) in a friendly, nature-inspired tone.
-      2. Suggest ONE real-world travel destination that connects to their current wellness focus (e.g., if they met the water goal, suggest a place known for water/purity).
+      2. Suggest ONE real-world travel destination that connects to their current wellness focus.
       3. Include a poetic line tying the destination to their growing planet in the destination description.
 
       Output format MUST be a strict JSON object:
@@ -121,7 +108,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
           },
       };
       
-      // Use the global fetch for simplicity without retry logic for this command
       const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -129,8 +115,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
       });
       
       if (!response.ok) {
-          const errorBody = await response.json();
-          console.error('Insight API Error Body:', JSON.stringify(errorBody, null, 2));
           throw new Error(`Gemini API request failed with status: ${response.status}`);
       }
       
@@ -141,19 +125,14 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
           throw new Error('Invalid response structure from Gemini.');
       }
       
-      // Clean up markdown fences (```json) if present and parse
       const cleanJson = aiJsonText.replace(/```json|```/g, '').trim();
-      const parsedInsight = JSON.parse(cleanJson);
-      
-      return parsedInsight;
+      return JSON.parse(cleanJson);
 
   }, [currentUser]);
-
 
   const sendMessage = useCallback(async () => {
     if (!inputText.trim() || loading) return;
 
-    // 🚨 Security Check: Prevent API call if key is missing/placeholder
     if (!apiKey || apiKey === "YOUR_ACTIVE_GEMINI_API_KEY_HERE") {
          Alert.alert(
             "API Key Missing", 
@@ -161,7 +140,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
         );
         return;
     }
-
 
     const userMessage = inputText.trim();
     setInputText('');
@@ -175,16 +153,14 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
       const isInsightCommand = userMessage.toUpperCase() === INSIGHT_COMMAND;
 
       if (isInsightCommand) {
-          // --- Custom Insight Logic (Instead of Chat) ---
           const insightData = await handleInsightRequest(taskData);
           setMessages(prev => [...prev, {
               role: 'assistant',
-              type: MESSAGE_TYPE_INSIGHT, // Use custom type for rendering
+              type: MESSAGE_TYPE_INSIGHT,
               insight: insightData,
               content: 'Your daily insight is ready!',
           }]);
       } else {
-          // --- Standard Conversational Chat Logic ---
           const systemPrompt = `You are a friendly, highly supportive and motivating AI Wellness Coach called "The Cosmos Guide". 
           Your purpose is to provide personalized encouragement and advice. Always reference the user's **${completionRate}% completion rate** when discussing progress. CONTEXT: ${contextMessage}`;
           
@@ -197,7 +173,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
           
           const payload = {
             contents: chatHistory,
-            tools: [{ "google_search": {} }],
             systemInstruction: { parts: [{ text: systemPrompt }] }
           };
 
@@ -217,10 +192,7 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
 
     } catch (error) {
       console.error('Error in send message process:', error);
-      Alert.alert('AI Connection Error', error.message.includes('403') ? 
-        "Authorization Failed (403). Please ensure your personal Gemini API key is correct in the .env file." : 
-        `Connection failed: ${error.message}`
-      );
+      Alert.alert('AI Connection Error', error.message);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: "I'm sorry, I couldn't process that request right now. 😥",
@@ -231,7 +203,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
     }
   }, [inputText, loading, messages, handleInsightRequest]);
   
-  // Function to open Booking.com link
   const handleOpenBookingLink = (destinationName) => {
       const searchUrl = `https://www.booking.com/searchresults.en-us.html?ss=${encodeURIComponent(destinationName)}`;
       Linking.openURL(searchUrl).catch(err => {
@@ -244,7 +215,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
     const isUser = message.role === 'user';
     
     if (message.type === MESSAGE_TYPE_INSIGHT) {
-        // --- Custom Insight Renderer ---
         const insight = message.insight;
         if (!insight || !insight.destination) return null;
 
@@ -270,7 +240,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
         );
     }
     
-    // --- Standard Chat Renderer ---
     return (
       <View 
         key={index} 
@@ -300,7 +269,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
@@ -308,7 +276,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
           <Text style={styles.title}>The Cosmos Guide</Text>
         </View>
 
-        {/* Messages */}
         <ScrollView 
           ref={scrollViewRef}
           style={styles.messagesContainer}
@@ -318,20 +285,19 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
           {messages.map((message, index) => renderMessage(message, index))}
           {loading && (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={styles.loadingText.color} />
+              <ActivityIndicator size="small" color="#8EE4AF" />
               <Text style={styles.loadingText}>Guide is thinking...</Text>
             </View>
           )}
         </ScrollView>
 
-        {/* Input */}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             value={inputText}
             onChangeText={setInputText}
             placeholder={`Ask me anything, or type "${INSIGHT_COMMAND}"...`}
-            placeholderTextColor={styles.placeholder.color}
+            placeholderTextColor="#A9D6E5"
             multiline
             maxLength={500}
             returnKeyType="send"
@@ -350,7 +316,6 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
   );
 }
 
-// --- STYLES ---
 const styles = StyleSheet.create({
   background: { flex: 1, width: '100%', height: '100%', },
   contentWrapper: { flex: 1, backgroundColor: 'rgba(28, 59, 94, 0.9)', },
@@ -419,8 +384,7 @@ const styles = StyleSheet.create({
   loadingText: { color: '#8EE4AF', marginLeft: 8, fontSize: 14, },
   inputContainer: { flexDirection: 'row', padding: 16, backgroundColor: '#1C3B5E', borderTopWidth: 1, borderTopColor: 'rgba(96, 179, 176, 0.5)', alignItems: 'flex-end', },
   input: { flex: 1, backgroundColor: '#1C3B5E', borderRadius: 25, paddingHorizontal: 18, paddingVertical: 12, paddingTop: 12, color: '#E0F7FA', fontSize: 15, maxHeight: 100, marginRight: 12, borderWidth: 1, borderColor: '#396C8E', textAlignVertical: 'top', },
-  placeholder: { color: '#A9D6E5', },
   sendButton: { backgroundColor: '#60B3B0', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 25, justifyContent: 'center', height: 48, width: 65, },
   sendButtonDisabled: { backgroundColor: 'rgba(57, 108, 142, 0.5)', opacity: 1, },
   sendButtonText: { color: '#E0F7FA', fontSize: 15, fontWeight: '700', },
-}); 
+});

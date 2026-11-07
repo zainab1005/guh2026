@@ -8,14 +8,11 @@ export default function Home({
     onNavigateToTasks, 
     onNavigateToChatbot, 
     onNavigateToShop,
-    onNavigateToFriends, // New prop for friends navigation
     planetHealth 
 }) {
     const [backgroundImage, setBackgroundImage] = useState(require("../resources/9.png"));
 
-    // Logic to select background image based on planet health
     const updateHealthImage = (planetHealth) => {
-        // NOTE: These paths are mocks. Ensure your actual image paths are correct in your project.
         if (planetHealth >= 80) return require("../resources/9.png");
         else if (planetHealth >= 60) return require("../resources/7.png");
         else if (planetHealth >= 40) return require("../resources/5.png");
@@ -29,7 +26,7 @@ export default function Home({
 
     const handleNextPage = () => {
         if (onNextPage) {
-            onNextPage(planetHealth); // pass the health value up to App.js
+            onNextPage(planetHealth);
         }
     };
 
@@ -37,42 +34,29 @@ export default function Home({
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleNextPage}>
             <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
                 
-                {/* TOP RIGHT ICON CONTAINER: Shop, Friends, Exit */}
+                {/* TOP RIGHT ICON CONTAINER: Shop & Exit */}
                 <View style={styles.topRightContainer}>
-                    
-                    {/* Shop Icon (First in row, no left margin) */}
                     <TouchableOpacity 
                         style={styles.topIcon} 
                         onPress={onNavigateToShop}
                     >
-                        <Text style={styles.topIconText}>🛒 Shop</Text>
+                        <Text style={styles.topIconText}> Shop</Text>
                     </TouchableOpacity>
                     
-                    {/* Friends Icon (Space from Shop) */}
-                    <TouchableOpacity 
-                        style={[styles.topIcon, { marginLeft: 10 }]} 
-                        onPress={onNavigateToFriends}
-                    >
-                        <Text style={styles.topIconText}>👥 Friends</Text>
-                    </TouchableOpacity>
-                    
-                    {/* Exit Icon (Logout) (Space from Friends) */}
                     <TouchableOpacity 
                         style={[styles.topIcon, { marginLeft: 10 }]} 
                         onPress={onLogout} 
                     >
-                        <Text style={styles.topIconText}>🚪 Exit</Text>
+                        <Text style={styles.topIconText}> Exit</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* MAIN CONTENT */}
                 <View style={styles.container}>
-                    {/* ENHANCED WELCOME TEXT */}
                     <Text style={styles.greetingTitle}>Greetings, Voyager!</Text>
                     {currentUser?.planetName && (
                         <Text style={styles.planetName}>Your home is: {currentUser.planetName}</Text>
                     )}
-                    {/* END ENHANCED WELCOME TEXT */}
                     
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity 
@@ -86,7 +70,7 @@ export default function Home({
                             style={styles.button} 
                             onPress={onNavigateToChatbot}
                         >
-                            <Text style={styles.buttonText}>💬 Wellness Chat</Text>
+                            <Text style={styles.buttonText}> Wellness Chat</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -107,13 +91,11 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%"
     },
-    
-    // --- NEW STYLES FOR TOP RIGHT ICONS ---
     topRightContainer: {
         position: 'absolute',
-        top: 50, // Standard adjustment for status bar/safe area on mobile
+        top: 50,
         right: 20,
-        flexDirection: 'row', // Crucial for horizontal layout
+        flexDirection: 'row',
         zIndex: 10,
     },
     topIcon: {
@@ -129,9 +111,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    // --- END NEW STYLES ---
-
-    // --- ENHANCED WELCOME STYLES ---
     greetingTitle: {
         fontSize: 48,
         fontWeight: '900',
@@ -149,8 +128,6 @@ const styles = StyleSheet.create({
         color: '#52869eff',
         marginBottom: 30,
     },
-    // --- END ENHANCED WELCOME STYLES ---
-
     buttonContainer: {
         width: '100%',
         marginBottom: 100,

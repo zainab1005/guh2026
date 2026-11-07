@@ -6,11 +6,8 @@ import {
   TextInput, 
   TouchableOpacity,
   Alert,
-  ImageBackground // <-- Added ImageBackground
+  ImageBackground
 } from 'react-native';
-import { auth, db } from '../firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 
 export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
   const [email, setEmail] = useState('');
@@ -18,35 +15,20 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
   const [planetName, setPlanetName] = useState('');
   const [displayName, setDisplayName] = useState('');
 
-  const handleSignUp = async () => {
+  const handleSignUp = () => {
     if (!planetName || !email || !password || !displayName) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const userId = userCredential.user.uid;
-
-      // Save user data to Firestore (Functionality preserved from file 1)
-      await setDoc(doc(db, 'users', userId), {
-        planetName: planetName,
-        displayName: displayName,
-        email: email,
-        friendCount: 0,
-        createdAt: new Date().toISOString()
-      });
-
-      onSignUpSuccess({ email, planetName, displayName });
-      Alert.alert('Success', 'Account created!');
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    }
+    // Bypass database check and directly complete sign up
+    onSignUpSuccess({ email, planetName, displayName });
+    Alert.alert('Success', 'Welcome to Wellness Planet!');
   };
 
   return (
     <ImageBackground
-      source={require('../resources/9.png')} // Replace with your actual image path if different
+      source={require('../resources/9.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -103,7 +85,6 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
   );
 }
 
-// Styles are copied from the second file for consistency
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -112,10 +93,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    // Semi-transparent overlay for text readability over the image
-    backgroundColor: 'rgba(30, 27, 75, 0.7)', 
+    backgroundColor: 'rgba(30, 27, 75, 0.7)', 
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
   },
   title: {
@@ -136,11 +115,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     fontSize: 16,
-    color: '#1E1B4B', // Ensure input text is dark
+    color: '#1E1B4B',
   },
   button: {
     width: '100%',
-    backgroundColor: '#52869eff', // Button color from the second file
+    backgroundColor: '#52869eff',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -152,7 +131,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   link: {
-    color: '#fff', // White link color for contrast
+    color: '#fff',
     marginTop: 20,
     fontSize: 14,
     textDecorationLine: 'underline',

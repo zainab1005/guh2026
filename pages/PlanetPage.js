@@ -3,9 +3,7 @@ import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react
 
 export default function PlanetPage({ 
     health, 
-    setHealth,
-    // Add the navigation prop here
-    onNavigateToHome // <-- NEW PROP for navigating back to Home.js
+    onNavigateToHome
 }) {
     const [backgroundImage, setBackgroundImage] = useState(require("../resources/9.png"));
 
@@ -18,7 +16,6 @@ export default function PlanetPage({
     };
 
     useEffect(() => {
-        // Ensure health is a number before passing it to updateHealthImage
         setBackgroundImage(updateHealthImage(health || 0)); 
     }, [health]);
 
@@ -28,10 +25,9 @@ export default function PlanetPage({
             style={styles.background} 
             resizeMode="cover"
         >
-            {/* The Back Button/Link, now connected to the Home navigation handler */}
             <TouchableOpacity 
                 style={styles.backButton} 
-                onPress={onNavigateToHome} // <-- This is where the navigation happens
+                onPress={onNavigateToHome}
             >
                 <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>

@@ -6,20 +6,15 @@ import Home from './pages/home';
 import PlanetPage from './pages/PlanetPage';
 import TasksScreen from './pages/TasksScreen';
 import ChatbotScreen from './pages/ChatbotScreen';
-import FriendsScreen from './pages/FriendsScreen';
-import FriendRequestPage from './pages/FriendRequestPage';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home'
   const [currentUser, setCurrentUser] = useState(null);
-  const [selectedFriend, setSelectedFriend] = useState(null);
   const [planetHealth, setPlanetHealth] = useState(100);
 
   const handleTaskProgress = (percentage) => {
-    // You can convert percentage directly to planet health if you want
     setPlanetHealth(percentage);
-    };
-
+  };
 
   const navigateToNext = (healthValue) => {
     setPlanetHealth(healthValue);
@@ -30,16 +25,12 @@ export default function App() {
     setCurrentScreen('chatbot');
   };
 
-  const navigateToFriends = () => {
-    setCurrentScreen('friends');
-  };
-
   const navigateToSignUp = () => setCurrentScreen('signup');
   const navigateToLogin = () => setCurrentScreen('login');
   
   const navigateToHome = (user) => {
     if (user) {
-        setCurrentUser(user);
+      setCurrentUser(user);
     }
     setCurrentScreen('home');
   };
@@ -51,15 +42,6 @@ export default function App() {
 
   const navigateToTasks = () => {
     setCurrentScreen('tasks');
-  };
-
-  const navigateToFriendPlanet = (friend) => {
-    setSelectedFriend(friend);
-    setCurrentScreen('friendplanet');
-  };
-
-  const navigateToAddFriends = () => {
-    setCurrentScreen('addfriends');
   };
 
   return (
@@ -85,15 +67,15 @@ export default function App() {
           onNextPage={navigateToNext}
           onNavigateToTasks={navigateToTasks}
           onNavigateToChatbot={navigateToChatbot}
-          onNavigateToFriends={navigateToFriends}
           planetHealth={planetHealth}          
           setHealth={setPlanetHealth} 
         />
       )}
 
       {currentScreen === 'tasks' && (
-        <TasksScreen onBack={() => setCurrentScreen('home')}
-        onProgressUpdate={handleTaskProgress} 
+        <TasksScreen 
+          onBack={() => setCurrentScreen('home')}
+          onProgressUpdate={handleTaskProgress} 
         />
       )}
 
@@ -101,40 +83,14 @@ export default function App() {
         <PlanetPage 
           health={planetHealth} 
           setHealth={setPlanetHealth} 
-          // 🚨 FIX APPLIED: Pass the home navigation function to PlanetPage
           onNavigateToHome={navigateToHome}
         />
       )}
 
       {currentScreen === 'chatbot' && (
         <ChatbotScreen 
-          onBack={navigateToHome} // Use navigateToHome for back action
+          onBack={navigateToHome}
           currentUser={currentUser}
-        />
-      )}
-
-      {currentScreen === 'friends' && (
-        <FriendsScreen 
-          onBack={() => setCurrentScreen('planetpage')}
-          onVisitPlanet={navigateToFriendPlanet}
-        />
-      )}
-
-      {currentScreen === 'friendplanet' && selectedFriend && (
-        <PlanetPage 
-          health={100} // make sure to chnage to fetch from their database
-          setHealth={() => {}} // read only
-          isFriendPlanet={true}
-          friendData={selectedFriend}
-          onNavigateToFriends={navigateToFriends}
-          onBack={() => setCurrentScreen('friends')}
-          onAddFriends={navigateToAddFriends}
-        />
-      )}
-
-      {currentScreen === 'addfriends' && (
-        <FriendRequestPage 
-          onBack={() => setCurrentScreen('friends')}
         />
       )}
 
