@@ -5,7 +5,7 @@ import SignUp from './pages/signup';
 import Home from './pages/home';
 import PlanetPage from './pages/PlanetPage';
 import TasksScreen from './pages/TasksScreen';
-import ChatbotScreen from './pages/ChatbotScreen';
+import ChatbotScreen from './claudia/ClaudiaScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home'
