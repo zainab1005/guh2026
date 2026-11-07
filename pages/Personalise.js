@@ -12,15 +12,16 @@ import {
 import BottomConsole from "./BottomConsole";
 
 const COLORS = {
-  bg: "#0E1A21",
-  surface: "#16262F",
-  surfaceAlt: "#1D313C",
-  text: "#EAF2EF",
-  textMuted: "#8FA7A8",
-  accent: "#6FD0C2",
-  caution: "#E9B44C",
-  info: "#7FB4E8",
-  danger: "#E58A8A",
+  bg: "#F4EFFA",
+  surface: "#FFFFFF",
+  surfaceAlt: "#EADFF6",
+  border: "#E4D8F2",
+  text: "#3B2A55",
+  textMuted: "#7D6F96",
+  accent: "#2F6B4A",
+  accentSoft: "#DCEBE2",
+  caution: "#B7791F",
+  info: "#7B5BB0",
 };
 
 const SUGGESTED = [
@@ -50,6 +51,7 @@ export default function Personalise({
   onSave,
   onNavigateToHome,
   onNavigateToForecast,
+  onNavigateToChat,
   onNavigateToChatbot,
   onNavigateToInsights,
   onNavigateToTasks,
@@ -58,6 +60,8 @@ export default function Personalise({
   const [customText, setCustomText] = useState("");
   const [saved, setSaved] = useState(false);
   const timer = useRef(null);
+
+  const handleChat = onNavigateToChatbot || onNavigateToChat;
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -149,7 +153,9 @@ export default function Personalise({
                 style={[styles.chip, selected && styles.chipSelected]}
               >
                 <Text style={styles.chipIcon}>{item.icon}</Text>
-                <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                <Text
+                  style={[styles.chipText, selected && styles.chipTextSelected]}
+                >
                   {item.label}
                 </Text>
                 <Text style={[styles.chipAction, selected && styles.chipTextSelected]}>
@@ -216,10 +222,11 @@ export default function Personalise({
         </TouchableOpacity>
       </ScrollView>
 
-      <BottomConsole 
+      <BottomConsole
+        active="insights"
         onNavigateToHome={onNavigateToHome}
         onNavigateToForecast={onNavigateToForecast}
-        onNavigateToChatbot={onNavigateToChatbot}
+        onNavigateToChatbot={handleChat}
         onNavigateToInsights={onNavigateToInsights}
         onNavigateToTasks={onNavigateToTasks}
       />
@@ -242,6 +249,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 24,
+    shadowColor: "#5C2D79",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   pageTitle: {
     color: COLORS.text,
@@ -286,7 +298,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: COLORS.surfaceAlt,
+    borderColor: COLORS.border,
     paddingVertical: 9,
     paddingHorizontal: 12,
     marginRight: 8,
@@ -307,7 +319,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   chipTextSelected: {
-    color: COLORS.bg,
+    color: "#FFFFFF",
   },
   chipAction: {
     color: COLORS.textMuted,
@@ -329,6 +341,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 15,
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   addButton: {
     backgroundColor: COLORS.accent,
@@ -340,7 +354,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   addButtonText: {
-    color: COLORS.bg,
+    color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
   },
@@ -362,6 +376,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 10,
+    shadowColor: "#5C2D79",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
   },
   rowIcon: {
     fontSize: 20,
@@ -406,7 +425,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   saveText: {
-    color: COLORS.bg,
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },

@@ -10,19 +10,22 @@ import {
 import BottomConsole from "./BottomConsole";
 
 const COLORS = {
-  bg: "#0E1A21",
-  surface: "#16262F",
-  surfaceAlt: "#1D313C",
-  text: "#EAF2EF",
-  textMuted: "#8FA7A8",
-  band: "rgba(79,179,165,0.28)",
-  bandEdge: "rgba(79,179,165,0.55)",
-  line: "#EAF2EF",
-  actual: "#6FD0C2",
-  caution: "#E9B44C",
-  positive: "#7BD389",
-  info: "#7FB4E8",
-  buffer: "rgba(233,180,76,0.8)",
+  bg: "#F4EFFA",
+  surface: "#FFFFFF",
+  surfaceAlt: "#EADFF6",
+  border: "#E4D8F2",
+  text: "#3B2A55",
+  textMuted: "#7D6F96",
+  green: "#2F6B4A",
+  greenSoft: "#DCEBE2",
+  band: "rgba(47,107,74,0.20)",
+  bandEdge: "rgba(47,107,74,0.45)",
+  line: "#3B2A55",
+  actual: "#2F6B4A",
+  caution: "#B7791F",
+  positive: "#2F6B4A",
+  info: "#7B5BB0",
+  buffer: "#B7791F",
 };
 
 const CHART_HEIGHT = 170;
@@ -178,12 +181,14 @@ export default function ForecastPage({
   buffer = 500,
   onNavigateToHome,
   onNavigateToForecast,
+  onNavigateToChat,
   onNavigateToChatbot,
   onNavigateToInsights,
   onNavigateToTasks,
 }) {
   const [rangeKey, setRangeKey] = useState("30");
   const range = RANGES.find((r) => r.key === rangeKey);
+  const handleChat = onNavigateToChatbot || onNavigateToChat;
 
   const points = useMemo(
     () => (forecast && forecast.length ? forecast : buildSampleForecast(range.days)),
@@ -283,10 +288,11 @@ export default function ForecastPage({
         ))}
       </ScrollView>
 
-      <BottomConsole 
+      <BottomConsole
+        active="forecast"
         onNavigateToHome={onNavigateToHome}
         onNavigateToForecast={onNavigateToForecast}
-        onNavigateToChatbot={onNavigateToChatbot}
+        onNavigateToChatbot={handleChat}
         onNavigateToInsights={onNavigateToInsights}
         onNavigateToTasks={onNavigateToTasks}
       />
@@ -309,6 +315,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 24,
+    shadowColor: "#5C2D79",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   widgetHeader: {
     flexDirection: "row",
@@ -333,7 +344,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   rangeChipActive: {
-    backgroundColor: COLORS.bg,
+    backgroundColor: COLORS.green,
   },
   rangeText: {
     color: COLORS.textMuted,
@@ -341,7 +352,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   rangeTextActive: {
-    color: COLORS.text,
+    color: "#FFFFFF",
   },
   headline: {
     color: COLORS.text,
@@ -419,7 +430,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 1,
-    backgroundColor: "rgba(234,242,239,0.35)",
+    backgroundColor: "rgba(59,42,85,0.3)",
   },
   bufferLine: {
     position: "absolute",
@@ -427,7 +438,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 1,
     backgroundColor: COLORS.buffer,
-    opacity: 0.7,
+    opacity: 0.8,
   },
   bufferLabel: {
     position: "absolute",
@@ -477,6 +488,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     marginBottom: 10,
+    shadowColor: "#5C2D79",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
   },
   insightMark: {
     width: 28,
