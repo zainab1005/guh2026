@@ -107,6 +107,7 @@ export default function App() {
         <ChatbotScreen 
           onBack={() => setCurrentScreen('home')}
           currentUser={currentUser}
+          priorities={userPriorities}
           {...consoleNavigation}
         />
       )}

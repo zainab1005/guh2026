@@ -43,6 +43,7 @@ export function buildContext(user) {
     },
     shortfallRisk,
     priorities: user.priorities ?? {},
+    priorityLevels: user.priorityLevels ?? undefined, // High / Medium / Low, from the Insights page
     monthSpendByCategory: user.spendThisMonth ?? {},
     goals: user.goals ?? [],
     recentDecisions: (user.recentDecisions ?? []).slice(-5),
