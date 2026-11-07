@@ -1,0 +1,16 @@
+# Dependencies and build output
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Secrets and local settings
+.env
+server/.env
+
+# macOS junk, including the " 2" / " 3" copies it makes when files clash
+.DS_Store
+* [2-9]
+* [2-9].*
+
+*.log
