@@ -13,6 +13,7 @@ import {
   ImageBackground,
   Alert
 } from 'react-native';
+import BottomConsole from './BottomConsole';
 
 const MOCK_TASK_DATA = [
   { type: 'water', value: 2200, goal: 2500, status: 'near-goal' },
@@ -21,9 +22,7 @@ const MOCK_TASK_DATA = [
 ];
 const MOCK_PLANET_HEALTH = 88; 
 
-const getRecentTaskData = async () => {
-  return MOCK_TASK_DATA;
-};
+const getRecentTaskData = async () => MOCK_TASK_DATA;
 
 const mockCurrentUser = {
   planetName: 'Aether',
@@ -57,7 +56,15 @@ const calculateMetrics = (taskData) => {
 const INSIGHT_COMMAND = "INSIGHT";
 const MESSAGE_TYPE_INSIGHT = "insight"; 
 
-export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser }) {
+export default function ChatbotScreen({ 
+  onBack, 
+  currentUser = mockCurrentUser,
+  onNavigateToHome,
+  onNavigateToForecast,
+  onNavigateToChatbot,
+  onNavigateToInsights,
+  onNavigateToTasks
+}) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -311,6 +318,14 @@ export default function ChatbotScreen({ onBack, currentUser = mockCurrentUser })
             <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </View>
+
+        <BottomConsole 
+          onNavigateToHome={onNavigateToHome}
+          onNavigateToForecast={onNavigateToForecast}
+          onNavigateToChatbot={onNavigateToChatbot}
+          onNavigateToInsights={onNavigateToInsights}
+          onNavigateToTasks={onNavigateToTasks}
+        />
       </KeyboardAvoidingView>
     </ImageBackground>
   );
