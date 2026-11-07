@@ -6,7 +6,6 @@ import Home from './pages/home';
 import PlanetPage from './pages/PlanetPage';
 import TasksScreen from './pages/TasksScreen';
 import ChatbotScreen from './claudia/ClaudiaScreen';
-import ChatbotScreen from './pages/ChatbotScreen';
 import ForecastPage from './pages/ForecastPage';
 import Personalise from './pages/Personalise';
 
@@ -108,6 +107,7 @@ export default function App() {
         <ChatbotScreen 
           onBack={() => setCurrentScreen('home')}
           currentUser={currentUser}
+          priorities={userPriorities}
           {...consoleNavigation}
         />
       )}

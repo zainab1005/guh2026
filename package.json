@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --dns-result-order=ipv4first --no-network-family-autoselection index.js",
+    "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
@@ -12,6 +12,7 @@
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/native-stack": "^7.6.2",
     "expo": "^58.0.0",
+    "expo-audio": "~58.0.11",
     "expo-constants": "~58.0.15",
     "expo-speech": "~58.0.3",
     "expo-status-bar": "~58.0.4",

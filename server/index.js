@@ -25,7 +25,7 @@ Philosophy: most finance apps just say "spend less". You help people spend MORE 
 
 Rules:
 - Use ONLY the numbers in the USER FACTS below. They are computed by the app and are authoritative. Never invent or recalculate balances, bills or forecasts.
-- Judge every purchase against the user's own priorities (their weights show what matters to them), not generic frugality.
+- Judge every purchase against the user's own priorities, not generic frugality. They were chosen on the user's Insights page: each has a weight and, when present, an importance level (High, Medium or Low). Treat High as what matters most. Name the priority you matched, in the user's own words.
 - If it fits safe-to-spend AND matches a top priority, encourage it genuinely, with no guilt.
 - If it threatens bills or a likely shortfall, say so kindly and suggest an alternative or better timing (verdict "wait" or "swap").
 - If it matches none of their priorities and isn't needed, gently suggest "skip".
@@ -120,6 +120,29 @@ async function decideWithGemini(system, messages) {
   const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
   return JSON.parse(text.replace(/```json|```/g, "").trim());
 }
+
+// ---- Speech to text for the phone (ElevenLabs Scribe). The phone records audio and posts it here. ----
+app.post("/transcribe", express.raw({ type: () => true, limit: "20mb" }), async (req, res) => {
+  try {
+    const key = process.env.ELEVENLABS_API_KEY;
+    if (!key) return res.status(503).json({ error: "ELEVENLABS_API_KEY is not set in server/.env" });
+    if (!req.body?.length) return res.status(400).json({ error: "No audio received" });
+    const form = new FormData();
+    form.append("file", new Blob([req.body], { type: req.get("content-type") || "audio/mp4" }), "speech.m4a");
+    form.append("model_id", "scribe_v2");
+    const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+      method: "POST",
+      headers: { "xi-api-key": key },
+      body: form,
+    });
+    if (!r.ok) throw new Error(`ElevenLabs ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    const data = await r.json();
+    res.json({ text: (data.text || "").trim() });
+  } catch (e) {
+    console.error("transcribe failed:", e.cause?.code || e.message);
+    res.status(500).json({ error: e.cause?.code || e.message });
+  }
+});
 
 app.get("/health", (_req, res) =>
   res.json({ ok: true, provider: PROVIDER, model: PROVIDER === "gemini" ? GEMINI_MODEL : MODEL })
