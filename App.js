@@ -8,7 +8,7 @@ import TasksScreen from './pages/TasksScreen';
 import ChatbotScreen from './pages/ChatbotScreen';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home'
+  const [currentScreen, setCurrentScreen] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [planetHealth, setPlanetHealth] = useState(100);
 
@@ -16,32 +16,28 @@ export default function App() {
     setPlanetHealth(percentage);
   };
 
-  const navigateToNext = (healthValue) => {
-    setPlanetHealth(healthValue);
-    setCurrentScreen('planetpage');
-  };
-
-  const navigateToChatbot = () => {
-    setCurrentScreen('chatbot');
-  };
-
-  const navigateToSignUp = () => setCurrentScreen('signup');
-  const navigateToLogin = () => setCurrentScreen('login');
-  
   const navigateToHome = (user) => {
-    if (user) {
-      setCurrentUser(user);
-    }
+    if (user) setCurrentUser(user);
     setCurrentScreen('home');
   };
 
+  const navigateToTasks = () => setCurrentScreen('tasks');
+  const navigateToChatbot = () => setCurrentScreen('chatbot');
+  const navigateToPlanet = () => setCurrentScreen('planetpage');
+  const navigateToSignUp = () => setCurrentScreen('signup');
+  const navigateToLogin = () => setCurrentScreen('login');
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentScreen('login');
   };
 
-  const navigateToTasks = () => {
-    setCurrentScreen('tasks');
+  // Shared navigation handlers for the BottomConsole component across pages
+  const consoleNavigation = {
+    onNavigateToHome: () => setCurrentScreen('home'),
+    onNavigateToForecast: () => setCurrentScreen('planetpage'),
+    onNavigateToChatbot: navigateToChatbot,
+    onNavigateToInsights: () => setCurrentScreen('planetpage'),
+    onNavigateToTasks: navigateToTasks,
   };
 
   return (
@@ -64,11 +60,8 @@ export default function App() {
         <Home 
           currentUser={currentUser}
           onLogout={handleLogout}
-          onNextPage={navigateToNext}
-          onNavigateToTasks={navigateToTasks}
-          onNavigateToChatbot={navigateToChatbot}
           planetHealth={planetHealth}          
-          setHealth={setPlanetHealth} 
+          {...consoleNavigation}
         />
       )}
 
@@ -76,6 +69,7 @@ export default function App() {
         <TasksScreen 
           onBack={() => setCurrentScreen('home')}
           onProgressUpdate={handleTaskProgress} 
+          {...consoleNavigation}
         />
       )}
 
@@ -83,14 +77,16 @@ export default function App() {
         <PlanetPage 
           health={planetHealth} 
           setHealth={setPlanetHealth} 
-          onNavigateToHome={navigateToHome}
+          onNavigateToHome={() => setCurrentScreen('home')}
+          {...consoleNavigation}
         />
       )}
 
       {currentScreen === 'chatbot' && (
         <ChatbotScreen 
-          onBack={navigateToHome}
+          onBack={() => setCurrentScreen('home')}
           currentUser={currentUser}
+          {...consoleNavigation}
         />
       )}
 
