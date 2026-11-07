@@ -6,8 +6,22 @@ import {
   TextInput, 
   TouchableOpacity,
   Alert,
-  ImageBackground
+  SafeAreaView,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
 } from 'react-native';
+
+const COLORS = {
+  bg: '#F4EFFA',
+  header: '#CDB9EA',
+  surface: '#FFFFFF',
+  border: '#E4D8F2',
+  text: '#3B2A55',
+  textMuted: '#7D6F96',
+  green: '#2F6B4A',
+};
 
 export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -19,7 +33,6 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
       return;
     }
 
-    // Bypass database check and trigger successful login state
     onLoginSuccess({ 
       email: email,
       planetName: 'My Planet',
@@ -31,98 +44,136 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
   };
 
   return (
-    <ImageBackground
-      source={require('../resources/9.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <View style={styles.contentContainer}>
-        <Text style={styles.title}>Planet Pal</Text> 
-        <Text style={styles.subtitle}>Welcome Back</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          
+          {/* LOGO CONTAINER ABOVE THE FORM */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../resources/claudia_logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#6B7280"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+          {/* LOGIN CARD */}
+          <View style={styles.card}>
+            <Text style={styles.title}>Claudia</Text> 
+            <Text style={styles.subtitle}>Welcome Back</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#6B7280"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor={COLORS.textMuted}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor={COLORS.textMuted}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-        <TouchableOpacity onPress={onNavigateToSignUp}>
-          <Text style={styles.link}>
-            Don't have an account? Sign up
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={onNavigateToSignUp}>
+              <Text style={styles.link}>
+                Don't have an account? Sign up
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    backgroundColor: COLORS.bg,
   },
-  contentContainer: {
+  keyboardView: {
     flex: 1,
-    backgroundColor: 'rgba(30, 27, 75, 0.7)',
-    alignItems: 'center',
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 140,
+    height: 140,
+  },
+  card: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#5C2D79',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+    color: COLORS.text,
+    textAlign: 'center',
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 18,
-    color: '#fff',
-    marginBottom: 32,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    marginBottom: 24,
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#F4EFFA',
     padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderRadius: 12,
+    marginBottom: 14,
     fontSize: 16,
-    color: '#1E1B4B',
+    color: COLORS.text,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   button: {
     width: '100%',
-    backgroundColor: '#52869eff',
+    backgroundColor: COLORS.green,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     alignItems: 'center',
     marginTop: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   link: {
-    color: '#fff',
+    color: COLORS.text,
     marginTop: 20,
     fontSize: 14,
+    textAlign: 'center',
     textDecorationLine: 'underline',
   },
 });
