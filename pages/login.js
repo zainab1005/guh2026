@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
   TouchableOpacity,
   Alert,
-  ImageBackground
+  ImageBackground,
 } from 'react-native';
+
+const COLORS = {
+  overlay: 'rgba(74, 55, 104, 0.68)',
+  input: '#FFFFFF',
+  inputText: '#3B2A55',
+  placeholder: '#8A7CA3',
+  green: '#2F6B4A',
+  link: '#EADFF6',
+};
 
 export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -20,13 +29,12 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
     }
 
     // Bypass database check and trigger successful login state
-    onLoginSuccess({ 
+    onLoginSuccess({
       email: email,
       planetName: 'My Planet',
       displayName: email.split('@')[0],
-      userId: 'mock-user-id-123'
+      userId: 'mock-user-id-123',
     });
-    
     Alert.alert('Success', 'Logged in!');
   };
 
@@ -37,13 +45,13 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
       resizeMode="cover"
     >
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Planet Pal</Text> 
+        <Text style={styles.title}>Planet Pal</Text>
         <Text style={styles.subtitle}>Welcome Back</Text>
 
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -53,7 +61,7 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -64,9 +72,7 @@ export default function LoginScreen({ onNavigateToSignUp, onLoginSuccess }) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onNavigateToSignUp}>
-          <Text style={styles.link}>
-            Don't have an account? Sign up
-          </Text>
+          <Text style={styles.link}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -81,7 +87,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: 'rgba(30, 27, 75, 0.7)',
+    backgroundColor: COLORS.overlay,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -94,23 +100,23 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#fff',
+    color: COLORS.link,
     marginBottom: 32,
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.input,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     marginBottom: 12,
     fontSize: 16,
-    color: '#1E1B4B',
+    color: COLORS.inputText,
   },
   button: {
     width: '100%',
-    backgroundColor: '#52869eff',
+    backgroundColor: COLORS.green,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     alignItems: 'center',
     marginTop: 8,
   },
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   link: {
-    color: '#fff',
+    color: COLORS.link,
     marginTop: 20,
     fontSize: 14,
     textDecorationLine: 'underline',

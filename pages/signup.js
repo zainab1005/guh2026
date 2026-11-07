@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
   TouchableOpacity,
   Alert,
-  ImageBackground
+  ImageBackground,
 } from 'react-native';
+
+const COLORS = {
+  overlay: 'rgba(74, 55, 104, 0.68)',
+  input: '#FFFFFF',
+  inputText: '#3B2A55',
+  placeholder: '#8A7CA3',
+  green: '#2F6B4A',
+  link: '#EADFF6',
+};
 
 export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
   const [email, setEmail] = useState('');
@@ -33,13 +42,13 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
       resizeMode="cover"
     >
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Wellness Planet</Text> 
+        <Text style={styles.title}>Wellness Planet</Text>
         <Text style={styles.subtitle}>Create Account</Text>
 
         <TextInput
           style={styles.input}
           placeholder="Display Name (for friends to find you)"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={displayName}
           onChangeText={setDisplayName}
         />
@@ -47,7 +56,7 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Planet Name"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={planetName}
           onChangeText={setPlanetName}
         />
@@ -55,7 +64,7 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -65,7 +74,7 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={COLORS.placeholder}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -76,9 +85,7 @@ export default function SignUpScreen({ onNavigateToLogin, onSignUpSuccess }) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onNavigateToLogin}>
-          <Text style={styles.link}>
-            Already have an account? Login
-          </Text>
+          <Text style={styles.link}>Already have an account? Login</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -93,8 +100,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: 'rgba(30, 27, 75, 0.7)', 
+    backgroundColor: COLORS.overlay,
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
   title: {
@@ -105,23 +113,23 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#fff',
+    color: COLORS.link,
     marginBottom: 32,
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.input,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     marginBottom: 12,
     fontSize: 16,
-    color: '#1E1B4B',
+    color: COLORS.inputText,
   },
   button: {
     width: '100%',
-    backgroundColor: '#52869eff',
+    backgroundColor: COLORS.green,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     alignItems: 'center',
     marginTop: 8,
   },
@@ -131,7 +139,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   link: {
-    color: '#fff',
+    color: COLORS.link,
     marginTop: 20,
     fontSize: 14,
     textDecorationLine: 'underline',

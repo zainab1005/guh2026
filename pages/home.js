@@ -1,153 +1,199 @@
-import React, { useState, useEffect } from "react";
-import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import BottomConsole from './BottomConsole';
 
-export default function Home({ 
-    currentUser, 
-    onLogout, 
-    onNextPage, 
-    onNavigateToTasks, 
-    onNavigateToChatbot, 
-    onNavigateToShop,
-    planetHealth 
+const COLORS = {
+  header: '#CDB9EA',
+  bg: '#F4EFFA',
+  surface: '#FFFFFF',
+  surfaceAlt: '#EADFF6',
+  text: '#3B2A55',
+  textSoft: '#5B4A78',
+  textMuted: '#7D6F96',
+  green: '#2F6B4A',
+  border: '#E4D8F2',
+};
+
+export default function Home({
+  currentUser,
+  onLogout,
+  onNavigateToHome,
+  onNavigateToForecast,
+  onNavigateToChat,
+  onNavigateToChatbot,
+  onNavigateToInsights,
+  onNavigateToTasks,
+  planetHealth,
 }) {
-    const [backgroundImage, setBackgroundImage] = useState(require("../resources/9.png"));
+  // Fallbacks to handle whichever prop name is passed from App.js
+  const handleChat = onNavigateToChatbot || onNavigateToChat;
 
-    const updateHealthImage = (planetHealth) => {
-        if (planetHealth >= 80) return require("../resources/9.png");
-        else if (planetHealth >= 60) return require("../resources/7.png");
-        else if (planetHealth >= 40) return require("../resources/5.png");
-        else if (planetHealth >= 20) return require("../resources/3.png");
-        else return require("../resources/1.png");
-    };
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* PASTEL PURPLE HEADER */}
+        <View style={styles.headerCard}>
+          <View style={styles.topHeaderRow}>
+            <View style={styles.headerSpacer} />
 
-    useEffect(() => {
-        setBackgroundImage(updateHealthImage(planetHealth));
-    }, [planetHealth]);
+            <Image
+              source={require('../resources/natwest_logo.jpg')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
-    const handleNextPage = () => {
-        if (onNextPage) {
-            onNextPage(planetHealth);
-        }
-    };
+            <TouchableOpacity style={styles.exitButton} onPress={onLogout}>
+              <Text style={styles.exitButtonText}>Exit 🚪</Text>
+            </TouchableOpacity>
+          </View>
 
-    return (
-        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleNextPage}>
-            <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
-                
-                {/* TOP RIGHT ICON CONTAINER: Shop & Exit */}
-                <View style={styles.topRightContainer}>
-                    <TouchableOpacity 
-                        style={styles.topIcon} 
-                        onPress={onNavigateToShop}
-                    >
-                        <Text style={styles.topIconText}> Shop</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity 
-                        style={[styles.topIcon, { marginLeft: 10 }]} 
-                        onPress={onLogout} 
-                    >
-                        <Text style={styles.topIconText}> Exit</Text>
-                    </TouchableOpacity>
-                </View>
+          <View style={styles.greetingBox}>
+            <Text style={styles.welcomeLabel}>Good day,</Text>
+            <Text style={styles.userName}>{currentUser?.displayName || 'User'}</Text>
+          </View>
 
-                {/* MAIN CONTENT */}
-                <View style={styles.container}>
-                    <Text style={styles.greetingTitle}>Greetings, Voyager!</Text>
-                    {currentUser?.planetName && (
-                        <Text style={styles.planetName}>Your home is: {currentUser.planetName}</Text>
-                    )}
-                    
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
-                            style={styles.button} 
-                            onPress={onNavigateToTasks}
-                        >
-                            <Text style={styles.buttonText}>Daily Tasks</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            style={styles.button} 
-                            onPress={onNavigateToChatbot}
-                        >
-                            <Text style={styles.buttonText}> Wellness Chat</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </ImageBackground>
-        </TouchableOpacity>
-    );
+          <View style={styles.healthStatusBox}>
+            <Text style={styles.healthLabel}>Wellness Score</Text>
+            <Text style={styles.healthValue}>{planetHealth}%</Text>
+            <View style={styles.healthTrack}>
+              <View style={[styles.healthFill, { width: `${planetHealth}%` }]} />
+            </View>
+          </View>
+        </View>
+
+        {/* MAIN CONTENT AREA */}
+        <View style={styles.contentArea}>
+          <View style={styles.quickActionBox}>
+            <Text style={styles.sectionTitle}>Dashboard</Text>
+            <Text style={styles.bodyText}>
+              Welcome to your console. Select an option from the bottom menu to view your forecast, talk with Claudia, view insights, or check your daily tasks.
+            </Text>
+          </View>
+        </View>
+
+        <BottomConsole
+          active="home"
+          onNavigateToHome={onNavigateToHome}
+          onNavigateToForecast={onNavigateToForecast}
+          onNavigateToChatbot={handleChat}
+          onNavigateToInsights={onNavigateToInsights}
+          onNavigateToTasks={onNavigateToTasks}
+        />
+      </View>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 20,
-    },
-    background: {
-        flex: 1,
-        width: "100%",
-        height: "100%"
-    },
-    topRightContainer: {
-        position: 'absolute',
-        top: 50,
-        right: 20,
-        flexDirection: 'row',
-        zIndex: 10,
-    },
-    topIcon: {
-        backgroundColor: '#325a6dff',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: '#52869eff',
-    },
-    topIconText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    greetingTitle: {
-        fontSize: 48,
-        fontWeight: '900',
-        color: '#fff',
-        marginBottom: 4,
-        marginTop: 100,
-        textShadowColor: 'rgba(124, 61, 237, 0.7)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 10,
-        letterSpacing: 1,
-    },
-    planetName: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#52869eff',
-        marginBottom: 30,
-    },
-    buttonContainer: {
-        width: '100%',
-        marginBottom: 100,
-    },
-    button: {
-        width: '100%',
-        backgroundColor: '#52869eff',
-        padding: 18,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginTop: 20,
-        shadowColor: '#52869eff',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 8,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    }
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.header,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  headerCard: {
+    backgroundColor: COLORS.header,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  topHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  headerSpacer: {
+    width: 60,
+  },
+  logo: {
+    width: 130,
+    height: 36,
+  },
+  exitButton: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  exitButtonText: {
+    color: COLORS.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  greetingBox: {
+    marginTop: 6,
+  },
+  welcomeLabel: {
+    color: COLORS.textSoft,
+    fontSize: 15,
+  },
+  userName: {
+    color: COLORS.text,
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  healthStatusBox: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.green,
+  },
+  healthLabel: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    letterSpacing: 0.3,
+  },
+  healthValue: {
+    color: COLORS.text,
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+  healthTrack: {
+    height: 6,
+    backgroundColor: COLORS.surfaceAlt,
+    borderRadius: 3,
+    marginTop: 10,
+    overflow: 'hidden',
+  },
+  healthFill: {
+    height: '100%',
+    backgroundColor: COLORS.green,
+    borderRadius: 3,
+  },
+  contentArea: {
+    flex: 1,
+    padding: 20,
+  },
+  quickActionBox: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#5C2D79',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  bodyText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 20,
+  },
 });
