@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import BottomConsole from './BottomConsole';
 
 export default function PlanetPage({ 
     health, 
-    onNavigateToHome
+    onNavigateToHome,
+    onNavigateToForecast,
+    onNavigateToChatbot,
+    onNavigateToInsights,
+    onNavigateToTasks
 }) {
     const [backgroundImage, setBackgroundImage] = useState(require("../resources/9.png"));
 
@@ -25,12 +30,24 @@ export default function PlanetPage({
             style={styles.background} 
             resizeMode="cover"
         >
-            <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={onNavigateToHome}
-            >
-                <Text style={styles.backText}>Back</Text>
-            </TouchableOpacity>
+            <View style={styles.container}>
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={onNavigateToHome}
+                >
+                    <Text style={styles.backText}>Back</Text>
+                </TouchableOpacity>
+
+                <View style={styles.spacer} />
+
+                <BottomConsole 
+                    onNavigateToHome={onNavigateToHome}
+                    onNavigateToForecast={onNavigateToForecast}
+                    onNavigateToChatbot={onNavigateToChatbot}
+                    onNavigateToInsights={onNavigateToInsights}
+                    onNavigateToTasks={onNavigateToTasks}
+                />
+            </View>
         </ImageBackground>
     );
 }
@@ -41,14 +58,22 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%"
     },
+    container: {
+        flex: 1,
+        justifyContent: 'space-between',
+    },
+    spacer: {
+        flex: 1,
+    },
     backButton: {
         position: "absolute",
-        top: 40,
+        top: 50,
         left: 20,
         paddingVertical: 10,
         paddingHorizontal: 15,
         backgroundColor: "rgba(0,0,0,0.5)",
-        borderRadius: 10
+        borderRadius: 10,
+        zIndex: 10,
     },
     backText: {
         color: "#fff",

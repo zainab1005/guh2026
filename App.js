@@ -6,42 +6,46 @@ import Home from './pages/home';
 import PlanetPage from './pages/PlanetPage';
 import TasksScreen from './pages/TasksScreen';
 import ChatbotScreen from './claudia/ClaudiaScreen';
+import ChatbotScreen from './pages/ChatbotScreen';
+import ForecastPage from './pages/ForecastPage';
+import Personalise from './pages/Personalise';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home'
+  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'home', 'forecast', 'insights', 'tasks', 'chatbot', 'planetpage'
   const [currentUser, setCurrentUser] = useState(null);
   const [planetHealth, setPlanetHealth] = useState(100);
+  const [userPriorities, setUserPriorities] = useState([]);
 
   const handleTaskProgress = (percentage) => {
     setPlanetHealth(percentage);
   };
 
-  const navigateToNext = (healthValue) => {
-    setPlanetHealth(healthValue);
-    setCurrentScreen('planetpage');
-  };
-
-  const navigateToChatbot = () => {
-    setCurrentScreen('chatbot');
-  };
-
-  const navigateToSignUp = () => setCurrentScreen('signup');
-  const navigateToLogin = () => setCurrentScreen('login');
-  
   const navigateToHome = (user) => {
-    if (user) {
-      setCurrentUser(user);
-    }
+    if (user) setCurrentUser(user);
     setCurrentScreen('home');
   };
 
+  const navigateToTasks = () => setCurrentScreen('tasks');
+  const navigateToChatbot = () => setCurrentScreen('chatbot');
+  const navigateToForecast = () => setCurrentScreen('forecast');
+  const navigateToInsights = () => setCurrentScreen('insights');
+  const navigateToSignUp = () => setCurrentScreen('signup');
+  const navigateToLogin = () => setCurrentScreen('login');
+  
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentScreen('login');
   };
 
-  const navigateToTasks = () => {
-    setCurrentScreen('tasks');
+  // Shared navigation handlers for console toolbar across screens
+  const consoleNavigation = {
+    onNavigateToHome: () => setCurrentScreen('home'),
+    onNavigateToForecast: navigateToForecast,
+    onNavigateToChat: navigateToChatbot,
+    onNavigateToChatbot: navigateToChatbot,
+    onNavigateToInsights: navigateToInsights,
+    onNavigateToActions: navigateToTasks,
+    onNavigateToTasks: navigateToTasks,
   };
 
   return (
@@ -64,11 +68,22 @@ export default function App() {
         <Home 
           currentUser={currentUser}
           onLogout={handleLogout}
-          onNextPage={navigateToNext}
-          onNavigateToTasks={navigateToTasks}
-          onNavigateToChatbot={navigateToChatbot}
           planetHealth={planetHealth}          
-          setHealth={setPlanetHealth} 
+          {...consoleNavigation}
+        />
+      )}
+
+      {currentScreen === 'forecast' && (
+        <ForecastPage 
+          {...consoleNavigation}
+        />
+      )}
+
+      {currentScreen === 'insights' && (
+        <Personalise 
+          priorities={userPriorities}
+          onSave={(updatedPriorities) => setUserPriorities(updatedPriorities)}
+          {...consoleNavigation}
         />
       )}
 
@@ -76,6 +91,7 @@ export default function App() {
         <TasksScreen 
           onBack={() => setCurrentScreen('home')}
           onProgressUpdate={handleTaskProgress} 
+          {...consoleNavigation}
         />
       )}
 
@@ -83,14 +99,16 @@ export default function App() {
         <PlanetPage 
           health={planetHealth} 
           setHealth={setPlanetHealth} 
-          onNavigateToHome={navigateToHome}
+          onNavigateToHome={() => setCurrentScreen('home')}
+          {...consoleNavigation}
         />
       )}
 
       {currentScreen === 'chatbot' && (
         <ChatbotScreen 
-          onBack={navigateToHome}
+          onBack={() => setCurrentScreen('home')}
           currentUser={currentUser}
+          {...consoleNavigation}
         />
       )}
 

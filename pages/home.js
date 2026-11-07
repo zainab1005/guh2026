@@ -1,153 +1,189 @@
-import React, { useState, useEffect } from "react";
-import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import BottomConsole from './BottomConsole';
 
 export default function Home({ 
     currentUser, 
     onLogout, 
-    onNextPage, 
-    onNavigateToTasks, 
-    onNavigateToChatbot, 
-    onNavigateToShop,
+    onNavigateToHome,
+    onNavigateToForecast,
+    onNavigateToChat,
+    onNavigateToChatbot,
+    onNavigateToInsights,
+    onNavigateToTasks,
     planetHealth 
 }) {
-    const [backgroundImage, setBackgroundImage] = useState(require("../resources/9.png"));
-
-    const updateHealthImage = (planetHealth) => {
-        if (planetHealth >= 80) return require("../resources/9.png");
-        else if (planetHealth >= 60) return require("../resources/7.png");
-        else if (planetHealth >= 40) return require("../resources/5.png");
-        else if (planetHealth >= 20) return require("../resources/3.png");
-        else return require("../resources/1.png");
-    };
-
-    useEffect(() => {
-        setBackgroundImage(updateHealthImage(planetHealth));
-    }, [planetHealth]);
-
-    const handleNextPage = () => {
-        if (onNextPage) {
-            onNextPage(planetHealth);
-        }
-    };
+    // Fallbacks to handle whichever prop name is passed from App.js
+    const handleChat = onNavigateToChatbot || onNavigateToChat;
 
     return (
-        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleNextPage}>
-            <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
-                
-                {/* TOP RIGHT ICON CONTAINER: Shop & Exit */}
-                <View style={styles.topRightContainer}>
-                    <TouchableOpacity 
-                        style={styles.topIcon} 
-                        onPress={onNavigateToShop}
-                    >
-                        <Text style={styles.topIconText}> Shop</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity 
-                        style={[styles.topIcon, { marginLeft: 10 }]} 
-                        onPress={onLogout} 
-                    >
-                        <Text style={styles.topIconText}> Exit</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* MAIN CONTENT */}
-                <View style={styles.container}>
-                    <Text style={styles.greetingTitle}>Greetings, Voyager!</Text>
-                    {currentUser?.planetName && (
-                        <Text style={styles.planetName}>Your home is: {currentUser.planetName}</Text>
-                    )}
-                    
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
-                            style={styles.button} 
-                            onPress={onNavigateToTasks}
-                        >
-                            <Text style={styles.buttonText}>Daily Tasks</Text>
-                        </TouchableOpacity>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                {/* LIGHT PURPLE HEADER WITH NATWEST LOGO IN THE MIDDLE & EXIT AT TOP RIGHT */}
+                <View style={styles.headerCard}>
+                    <View style={styles.topHeaderRow}>
+                        <View style={styles.headerSpacer} />
                         
-                        <TouchableOpacity 
-                            style={styles.button} 
-                            onPress={onNavigateToChatbot}
-                        >
-                            <Text style={styles.buttonText}> Wellness Chat</Text>
+                        {/* Local NatWest Logo */}
+                        <Image 
+                            source={require('../resources/natwest_logo.jpg')}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
+                        
+                        <TouchableOpacity style={styles.exitButton} onPress={onLogout}>
+                            <Text style={styles.exitButtonText}>Exit 🚪</Text>
                         </TouchableOpacity>
                     </View>
+
+                    <View style={styles.greetingBox}>
+                        <Text style={styles.welcomeLabel}>Good day,</Text>
+                        <Text style={styles.userName}>{currentUser?.displayName || 'User'}</Text>
+                    </View>
+
+                    <View style={styles.healthStatusBox}>
+                        <Text style={styles.healthLabel}>Wellness Score</Text>
+                        <Text style={styles.healthValue}>{planetHealth}%</Text>
+                        <View style={styles.healthTrack}>
+                            <View style={[styles.healthFill, { width: `${planetHealth}%` }]} />
+                        </View>
+                    </View>
                 </View>
-            </ImageBackground>
-        </TouchableOpacity>
+
+                {/* MAIN CONTENT AREA */}
+                <View style={styles.contentArea}>
+                    <View style={styles.quickActionBox}>
+                        <Text style={styles.sectionTitle}>Dashboard</Text>
+                        <Text style={styles.bodyText}>
+                            Welcome to your console. Select an option from the bottom menu to view your forecast, talk with Claudia, view insights, or check your daily tasks.
+                        </Text>
+                    </View>
+                </View>
+
+                {/* BOTTOM CONSOLE WITH NAV PROPS PASSED DOWN */}
+                <BottomConsole 
+                    onNavigateToHome={onNavigateToHome}
+                    onNavigateToForecast={onNavigateToForecast}
+                    onNavigateToChatbot={handleChat}
+                    onNavigateToInsights={onNavigateToInsights}
+                    onNavigateToTasks={onNavigateToTasks}
+                />
+            </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#7A3E9D',
+    },
     container: {
         flex: 1,
+        backgroundColor: '#F5F0F8',
+    },
+    headerCard: {
+        backgroundColor: '#7A3E9D',
+        paddingHorizontal: 20,
+        paddingTop: 10,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    topHeaderRow: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    headerSpacer: {
+        width: 60,
+    },
+    logo: {
+        width: 130,
+        height: 36,
+    },
+    exitButton: {
+        backgroundColor: '#5C2D79',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+    exitButtonText: {
+        color: '#ffffff',
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    greetingBox: {
+        marginTop: 6,
+    },
+    welcomeLabel: {
+        color: '#E9D7F5',
+        fontSize: 15,
+    },
+    userName: {
+        color: '#ffffff',
+        fontSize: 26,
+        fontWeight: 'bold',
+        marginTop: 2,
+    },
+    healthStatusBox: {
+        backgroundColor: '#5C2D79',
+        borderRadius: 12,
+        padding: 16,
+        marginTop: 16,
+        borderLeftWidth: 4,
+        borderLeftColor: '#FFD700',
+    },
+    healthLabel: {
+        color: '#E9D7F5',
+        fontSize: 13,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    healthValue: {
+        color: '#ffffff',
+        fontSize: 26,
+        fontWeight: 'bold',
+        marginTop: 4,
+    },
+    healthTrack: {
+        height: 6,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: 3,
+        marginTop: 10,
+        overflow: 'hidden',
+    },
+    healthFill: {
+        height: '100%',
+        backgroundColor: '#FFD700',
+        borderRadius: 3,
+    },
+    contentArea: {
+        flex: 1,
         padding: 20,
     },
-    background: {
-        flex: 1,
-        width: "100%",
-        height: "100%"
+    quickActionBox: {
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        padding: 20,
+        shadowColor: '#5C2D79',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 2,
     },
-    topRightContainer: {
-        position: 'absolute',
-        top: 50,
-        right: 20,
-        flexDirection: 'row',
-        zIndex: 10,
-    },
-    topIcon: {
-        backgroundColor: '#325a6dff',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: '#52869eff',
-    },
-    topIconText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    greetingTitle: {
-        fontSize: 48,
-        fontWeight: '900',
-        color: '#fff',
-        marginBottom: 4,
-        marginTop: 100,
-        textShadowColor: 'rgba(124, 61, 237, 0.7)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 10,
-        letterSpacing: 1,
-    },
-    planetName: {
-        fontSize: 22,
+    sectionTitle: {
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#52869eff',
-        marginBottom: 30,
+        color: '#5C2D79',
+        marginBottom: 8,
     },
-    buttonContainer: {
-        width: '100%',
-        marginBottom: 100,
+    bodyText: {
+        fontSize: 14,
+        color: '#4B5563',
+        lineHeight: 20,
     },
-    button: {
-        width: '100%',
-        backgroundColor: '#52869eff',
-        padding: 18,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginTop: 20,
-        shadowColor: '#52869eff',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 8,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    }
 });

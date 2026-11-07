@@ -7,8 +7,17 @@ import {
   ScrollView,
   ImageBackground
 } from 'react-native';
+import BottomConsole from './BottomConsole';
 
-export default function TasksScreen({ onBack, onProgressUpdate }) {
+export default function TasksScreen({ 
+  onBack, 
+  onProgressUpdate,
+  onNavigateToHome,
+  onNavigateToForecast,
+  onNavigateToChatbot,
+  onNavigateToInsights,
+  onNavigateToTasks
+}) {
   const [tasks, setTasks] = useState({
     water: null,
     meals: null,
@@ -30,8 +39,15 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
     loadTodaysTasks();
   }, []);
 
+  useEffect(() => {
+    if (onProgressUpdate && !loading) {
+      const completed = Object.values(tasks).filter(v => v === true).length;
+      const percentage = Math.round((completed / 5) * 100);
+      onProgressUpdate(percentage);
+    }
+  }, [tasks, loading, onProgressUpdate]);
+
   const loadTodaysTasks = () => {
-    // Tasks now maintain local React state instead of reading from Firestore
     setTasks({
       water: null,
       meals: null,
@@ -43,19 +59,12 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
   };
 
   const toggleTask = (taskKey, newValue) => {
-    const updatedTasks = { ...tasks, [taskKey]: newValue };
-    setTasks(updatedTasks);
+    setTasks(prev => ({ ...prev, [taskKey]: newValue }));
   };
 
   const getCompletionPercentage = () => {
     const completed = Object.values(tasks).filter(v => v === true).length;
-    const percentage = Math.round((completed / 5) * 100);
-
-    if (onProgressUpdate) {
-      onProgressUpdate(percentage);
-    }
-    
-    return percentage;
+    return Math.round((completed / 5) * 100);
   };
 
   const renderTaskItem = (taskKey) => {
@@ -68,29 +77,17 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
         <Text style={styles.taskLabel}>{task.icon} {task.label}</Text>
         <View style={styles.buttonGroup}>
           <TouchableOpacity
-            style={[
-              styles.statusButton,
-              isCompleted && styles.completedButton
-            ]}
+            style={[styles.statusButton, isCompleted && styles.completedButton]}
             onPress={() => toggleTask(taskKey, true)}
           >
-            <Text style={[
-              styles.statusIcon,
-              isCompleted && styles.statusIconActive
-            ]}>✓</Text>
+            <Text style={[styles.statusIcon, isCompleted && styles.statusIconActive]}>✓</Text>
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={[
-              styles.statusButton,
-              isIncomplete && styles.incompleteButton
-            ]}
+            style={[styles.statusButton, isIncomplete && styles.incompleteButton]}
             onPress={() => toggleTask(taskKey, false)}
           >
-            <Text style={[
-              styles.statusIcon,
-              isIncomplete && styles.statusIconActive
-            ]}>✕</Text>
+            <Text style={[styles.statusIcon, isIncomplete && styles.statusIconActive]}>✕</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -111,36 +108,41 @@ export default function TasksScreen({ onBack, onProgressUpdate }) {
       style={styles.background}
       resizeMode="cover"
     >
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Daily Missions </Text>
-          <Text style={styles.dateText}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
-          
-          <View style={styles.progressContainer}>
-            <Text style={styles.progressText}>
-              {getCompletionPercentage()}% Progress
-            </Text>
-            <View style={styles.progressBar}>
-              <View 
-                style={[
-                  styles.progressFill, 
-                  { width: `${getCompletionPercentage()}%` }
-                ]} 
-              />
+      <View style={styles.screenWrapper}>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Daily Missions </Text>
+            <Text style={styles.dateText}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
+            
+            <View style={styles.progressContainer}>
+              <Text style={styles.progressText}>
+                {getCompletionPercentage()}% Progress
+              </Text>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: `${getCompletionPercentage()}%` }]} />
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.tasksList}>
-          {Object.keys(taskDetails).map(taskKey => renderTaskItem(taskKey))}
-        </View>
+          <View style={styles.tasksList}>
+            {Object.keys(taskDetails).map(taskKey => renderTaskItem(taskKey))}
+          </View>
 
-        {onBack && (
-          <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Text style={styles.backButtonText}>← Back to Home</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
+          {onBack && (
+            <TouchableOpacity style={styles.backButton} onPress={onBack}>
+              <Text style={styles.backButtonText}>← Back to Home</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+
+        <BottomConsole 
+          onNavigateToHome={onNavigateToHome}
+          onNavigateToForecast={onNavigateToForecast}
+          onNavigateToChatbot={onNavigateToChatbot}
+          onNavigateToInsights={onNavigateToInsights}
+          onNavigateToTasks={onNavigateToTasks}
+        />
+      </View>
     </ImageBackground>
   );
 }
@@ -150,6 +152,9 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  screenWrapper: {
+    flex: 1,
   },
   contentContainer: {
     flexGrow: 1,
@@ -170,9 +175,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#E0F7FA',
     marginBottom: 10,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
   dateText: {
     fontSize: 16,
@@ -214,11 +216,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 8,
   },
   taskLabel: {
     fontSize: 17,
@@ -263,11 +260,6 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 10,
     alignItems: 'center',
-    shadowColor: '#60B3B0',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
   },
   backButtonText: {
     color: '#E0F7FA',
